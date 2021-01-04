@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             properties.Items[Constants.Policy] = _options.Value?.SignUpSignInPolicyId;
             return Challenge(properties, scheme);
         }
-
+        
         /// <summary>
         /// Challenges the user.
         /// </summary>
