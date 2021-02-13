@@ -1,3 +1,39 @@
+1.6.0
+==========
+See [blog post](https://github.com/AzureAD/microsoft-identity-web/wiki/1.6.0) for details.
+
+### New Features:
+**Microsoft Identity Web templates now include a project template for Azure Functions**. See issue [#899](https://github.com/AzureAD/microsoft-identity-web/issues/899) for details.
+
+**gRPC templates now include calling graph and downstream APIs**. See issue [#900](https://github.com/AzureAD/microsoft-identity-web/issues/900) for details.
+
+**Microsoft Identity Web now exposes an AuthorizationFilter attribute to express accepted scopes on controllers, actions, or pages**. See issue [#849](https://github.com/AzureAD/microsoft-identity-web/issues/849) for details.
+
+**When using the delegate override of `.EnableTokenAcquisitionToCallDownstreamApi`, you don't need to repeat the properties present in the Microsoft Identity Options ex. Instance, TenantId, ClientId, etc...**. See issue [#742](https://github.com/AzureAD/microsoft-identity-web/issues/742) for details.
+
+**Microsoft Identity Web now exposes the `DefaultCertificateLoader`, which would be used when loading a certificate from a daemon application, or an ASP NET application, using MSAL .NET directly**. See issue [#952](https://github.com/AzureAD/microsoft-identity-web/issues/952) for details.
+
+### Bug Fixes:
+**Microsoft Identity Web now supports token decryption certificates rotation**. See issue [#905](https://github.com/AzureAD/microsoft-identity-web/issues/905) for details.
+
+**Microsoft Identity Web now allows the AuthorizeForScopeAttribute to specify an alternate AuthenticationScheme**. See issue [#870](https://github.com/AzureAD/microsoft-identity-web/issues/870) for details.
+
+1.5.1
+==========
+Update to the latest version of MSAL .NET (4.25), Microsoft Graph (3.22) and Microsoft Graph Beta (0.36.0-preview).
+
+1.5.0
+==========
+### New Features:
+**Microsoft Identity Web templates now include a project template for gRPC**. See issue [#628](https://github.com/AzureAD/microsoft-identity-web/issues/628) for details.
+
+**Microsoft Identity Web now helps writing Azure Functions protected with Azure AD or Azure AD B2C**. See issue [#878](https://github.com/AzureAD/microsoft-identity-web/issues/878).
+
+**The Microsoft Identity Web B2C templates now use the recommended `.b2clogin.com`** instead of `login.microsoftonline.com` by default. See issue [#792](https://github.com/AzureAD/microsoft-identity-web/issues/792) for details.
+
+### Bug Fixes:
+**In a Blazor server application, when the client app requests consent for the web API, the call would result in an infinite loop**. The consent screen is now correctly displayed. See issue [#847](https://github.com/AzureAD/microsoft-identity-web/issues/847) for details.
+
 1.4.1
 ==========
 ### New Features:
@@ -7,14 +43,20 @@
 ==========
 ### New Features: 
 **Starting in MSAL .NET 4.24, the `.WithForceRefresh()` parameter is passed to the on-behalf-of call**. Microsoft Identity Web now incudes it in the on-behalf-of call. It is false by default, as part of the `TokenAcquisitionOptions`. See issue [#811](https://github.com/AzureAD/microsoft-identity-web/issues/811) for details.
-**Microsoft Identity Web now exposes the generic consent handler in Razor pages and MVC controllers in addition to Blazor pages (by registering it on a `IServiceCollection`**. See issue [#805](https://github.com/AzureAD/microsoft-identity-web/issues/805) for details.
+
+**Microsoft Identity Web now exposes the generic consent handler in Razor pages and MVC controllers in addition to Blazor pages (by registering it on a `IServiceCollection`)**. See issue [#805](https://github.com/AzureAD/microsoft-identity-web/issues/805) for details.
 
 ### Bug Fixes:
 **Microsoft Identity Web was validating the issuer even when `ValidateIssuer` was set to false**. This is now fixed. See issue [#797](https://github.com/AzureAD/microsoft-identity-web/issues/797) for details.
+
 **Microsoft Identity Web now uses the redirect URI if you provide it as part of the `ConfidentialClientApplicationOptions`**. See issue [#784](https://github.com/AzureAD/microsoft-identity-web/issues/784) for details.
+
 **Microsoft Identity Web provides a better experience for app developers who use the legacy `login.microsoftonline.com/tfp/` authority for B2C applications**. See issue [#143](https://github.com/AzureAD/microsoft-identity-web/issues/143) for details.
+
 **A tenanted authority must be used in the acquire token for app scenario**. If `common` or `organizations` is used, Microsoft Identity Web will throw an actionable exception. See issue [#793](https://github.com/AzureAD/microsoft-identity-web/issues/793) for details.
+
 **The wrong constant values were used for LoginHint and DomainHint**. See issue [798](https://github.com/AzureAD/microsoft-identity-web/issues/798) and [PR](https://github.com/AzureAD/microsoft-identity-web/pull/812) for details.
+
 **Microsoft Identity Web now supports individual auth with AAD external providers**. To enable this, you can now specify a null cookie scheme in `AddMicrosoftIdentityWebApp`. See issue [#133](https://github.com/AzureAD/microsoft-identity-web/issues/133) and issue [#809](https://github.com/AzureAD/microsoft-identity-web/issues/809).
 
 1.3.0

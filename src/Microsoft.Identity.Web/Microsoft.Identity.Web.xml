@@ -151,6 +151,11 @@
             Azure AD B2C user flow.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.AuthorizeForScopesAttribute.AuthenticationScheme">
+            <summary>
+            Allows specifying an AuthenticationScheme if OpenIdConnect is not the default challenge scheme.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.AuthorizeForScopesAttribute.OnException(Microsoft.AspNetCore.Mvc.Filters.ExceptionContext)">
             <summary>
             Handles the <see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/>.
@@ -163,6 +168,18 @@
             </summary>
             <param name="exception">Exception from which we look for an MsalUiRequiredException.</param>
             <returns>The MsalUiRequiredException if there is one, null, otherwise.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension">
+            <summary>
+            Extensions for <see cref="T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension.AuthenticateAzureFunctionAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Enables an Azure Function to act as/expose a protected web API, enabling bearer token authentication. Calling this method from your Azure function validates the token and exposes the identity of the user or app on behalf of which your function is called, in the HttpContext.User member, where your function can make use of it.
+            </summary>
+            <param name="httpContext">The current HTTP Context, such as req.HttpContext.</param>
+            <returns>A task indicating success or failure. In case of failure <see cref="T:Microsoft.AspNetCore.Mvc.UnauthorizedObjectResult"/>.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.CertificateDescription">
             <summary>
@@ -339,9 +356,21 @@
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.DefaultCertificateLoader">
-            <summary>
-            Certificate Loader.
-            </summary>
+             <summary>
+             Certificate Loader.
+             Only use when loading a certificate from a daemon application, or an ASP NET app, using MSAL .NET directly.
+             For an ASP NET Core app, <b>Microsoft Identity Web will handle the certificate loading</b> for you.
+             <example><code>
+             IConfidentialClientApplication app;
+             ICertificateLoader certificateLoader = new DefaultCertificateLoader();
+                 certificateLoader.Load(config.CertificateDescription);
+            
+                app = ConfidentialClientApplicationBuilder.Create(config.ClientId)
+                       .WithCertificate(config.CertificateDescription.Certificate)
+                       .WithAuthority(new Uri(config.Authority))
+                       .Build();
+             </code></example>
+             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription)">
             <summary>
@@ -366,9 +395,21 @@
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.ICertificateLoader">
-            <summary>
-            Interface to implement loading of a certificate.
-            </summary>
+             <summary>
+             Interface to implement loading of a certificate.
+             Only use when loading a certificate from a daemon application, or an ASP NET app, using MSAL .NET directly.
+             For an ASP NET Core app, <b>Microsoft Identity Web will handle the certificate loading</b> for you.
+             <example><code>
+             IConfidentialClientApplication app;
+             ICertificateLoader certificateLoader = new DefaultCertificateLoader();
+                 certificateLoader.Load(config.CertificateDescription);
+            
+                app = ConfidentialClientApplicationBuilder.Create(config.ClientId)
+                       .WithCertificate(config.CertificateDescription.Certificate)
+                       .WithAuthority(new Uri(config.Authority))
+                       .Build();
+             </code></example>
+             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.ICertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription)">
             <summary>
@@ -1036,6 +1077,31 @@
             <param name="httpContext">HTTP context associated with the current request.</param>
             <returns><see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> used to call the web API.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.ILoginErrorAccessor">
+            <summary>
+            Provides access to get or set the current error status.
+            The default implementation will use TempData and be enabled when run under Development.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ILoginErrorAccessor.GetMessage(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Gets the error message for the current request.
+            </summary>
+            <param name="context">Current <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>.</param>
+            <returns>The current error message if available.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ILoginErrorAccessor.SetMessage(Microsoft.AspNetCore.Http.HttpContext,System.String)">
+            <summary>
+            Sets the error message for the current request.
+            </summary>
+            <param name="context">Current <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>.</param>
+            <param name="message">Error message to set.</param>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ILoginErrorAccessor.IsEnabled">
+            <summary>
+            Gets whether error messages should be displayed.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.IncrementalConsentAndConditionalAccessHelper">
             <summary>
             Helper methods to handle incremental consent and conditional access in
@@ -1692,6 +1758,67 @@
              <param name="validationParameters">Token validation parameters.</param>
              <returns>True if the token is valid; false, otherwise.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.Resource.RequiredScopeAttribute">
+            <summary>
+            This attribute is used on a controller, pages, or controller actions
+            to declare (and validate) the scopes required by a web API. These scopes can be declared
+            in two ways: hardcoding them, or declaring them in the configuration. Depending on your
+            choice, use either one or the other of the constructors.
+            For details, see https://aka.ms/ms-id-web/required-scope-attribute.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesConfigurationKey">
+            <summary>
+            Fully qualified name of the configuration key containing the required scopes (separated
+            by spaces).
+            </summary>
+            <example>
+            If the appsettings.json file contains a section named "AzureAd", in which
+            a property named "Scopes" contains the required scopes, the attribute on the
+            controller/page/action to protect should be set to the following:
+            <code>
+            [RequiredScope(RequiredScopesConfigurationKey="AzureAd:Scopes")]
+            </code>
+            </example>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.#ctor(System.String[])">
+             <summary>
+             Verifies that the web API is called with the right scopes.
+             If the token obtained for this API is on behalf of the authenticated user does not have
+             any of these <paramref name="acceptedScopes"/> in its scope claim, the
+             method updates the HTTP response providing a status code 403 (Forbidden)
+             and writes to the response body a message telling which scopes are expected in the token.
+             </summary>
+             <param name="acceptedScopes">Scopes accepted by this web API.</param>
+             <remarks>When the scopes don't match, the response is a 403 (Forbidden),
+             because the user is authenticated (hence not 401), but not authorized.</remarks>
+             <example>
+             Add the following attribute on the controller/page/action to protect:
+            
+             <code>
+             [RequiredScope("access_as_user")]
+             </code>
+             </example>
+             <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesConfigurationKey"/>
+             if you want to express the required scopes from the configuration.
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.#ctor">
+            <summary>
+            Default constructor, to be used along with the <see cref="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesConfigurationKey"/>
+            property when you want to get the scopes to validate from the configuration, instead
+            of hardcoding them in the code.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeFilter.#ctor(System.String[])">
+            <summary>
+            If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
+            method updates the HTTP response providing a status code 403 (Forbidden)
+            and writes to the response body a message telling which scopes are expected in the token.
+            </summary>
+            <param name="acceptedScopes">Scopes accepted by this web API.</param>
+            <remarks>When the scopes don't match, the response is a 403 (Forbidden),
+            because the user is authenticated (hence not 401), but not authorized.</remarks>
+        </member>
         <member name="T:Microsoft.Identity.Web.Resource.RolesRequiredHttpContextExtensions">
             <summary>
             Extension class providing the extension methods for <see cref="T:System.Net.Http.HttpContent"/> that
@@ -1710,23 +1837,19 @@
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions">
             <summary>
-            Extension class providing the extension methods for <see cref="T:System.Net.Http.HttpContent"/> that
-            can be used in web APIs to validate scopes in controller actions.
+            This extension class is now Obsolete.
+            Use instead the RequiredScope Attribute on the controller, the page or the action.
+            See https://aka.ms/ms-id-web/required-scope-attribute.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions.VerifyUserHasAnyAcceptedScope(Microsoft.AspNetCore.Http.HttpContext,System.String[])">
             <summary>
-            When applied to an <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>, verifies that the user authenticated in the
-            web API has any of the accepted scopes.
-            If there is no authenticated user, the response is a 401 (Unauthenticated).
-            If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
-            method updates the HTTP response providing a status code 403 (Forbidden)
-            and writes to the response body a message telling which scopes are expected in the token.
+            This method is now Obsolete.
+            Use instead the RequiredScope Attribute on the controller, the page or the action.
+            See https://aka.ms/ms-id-web/required-scope-attribute.
             </summary>
             <param name="context">HttpContext (from the controller).</param>
             <param name="acceptedScopes">Scopes accepted by this web API.</param>
-            <remarks>When the scopes don't match, the response is a 403 (Forbidden),
-            because the user is authenticated (hence not 401), but not authorized.</remarks>
         </member>
         <member name="T:Microsoft.Identity.Web.AadIssuerValidatorOptions">
             <summary>
@@ -1763,6 +1886,11 @@
              .AddSessionBasedTokenCache();
              </code>
              </example>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TempDataLoginErrorAccessor">
+            <summary>
+            An implementation of <see cref="T:Microsoft.Identity.Web.ILoginErrorAccessor"/> that uses <see cref="T:Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataDictionary"/> to track error messages.
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenAcquisition">
             <summary>
@@ -2440,6 +2568,13 @@
             <param name="configureMicrosoftIdentityOptions">Action called to configure
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Optional configuration section.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            The web app calls a web API.
+            </summary>
+            <param name="initialScopes">Initial scopes.</param>
+            <returns>The builder itself for chaining.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Collections.Generic.IEnumerable{System.String})">
             <summary>
